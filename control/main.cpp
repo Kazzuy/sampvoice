@@ -14,6 +14,7 @@
 #include <pawn/plugincommon.h>
 #include <util/logger.hpp>
 #include <ysf/globals.h>
+#include <util/host.hpp>
 
 #include "command.hpp"
 #include "control.hpp"
@@ -1152,9 +1153,9 @@ static void OnDeleteStream(const uword_t stream) noexcept
 {
     if (gStreams.Acquire<0>(stream))
     {
-        if (pNetGame != nullptr && pNetGame->pPlayerPool != nullptr && pNetGame->pPlayerPool->dwConnectedPlayers != 0)
+        if (host::HasPlayers())
         {
-            for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+            for (size_t player = 0; player < host::PlayerLimit(); ++player)
             {
                 if (gPlayers.Acquire<0>(player))
                 {
@@ -1215,7 +1216,7 @@ static bool OnAppendFilter(const uword_t effect, const ubyte_t filter,
     // Sending Packet to Player...
     // -------------------------------------------------
 
-    if (pNetGame != nullptr && pNetGame->pPlayerPool != nullptr && pNetGame->pPlayerPool->dwConnectedPlayers != 0)
+    if (host::HasPlayers())
     {
         const auto packet = static_cast<ControlEffectAppendFilter*>
             (ControlService::Instance().BeginPacket(ControlPackets::EffectAppendFilter));
@@ -1228,7 +1229,7 @@ static bool OnAppendFilter(const uword_t effect, const ubyte_t filter,
 
         ControlService::Instance().EndPacket();
 
-        for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+        for (size_t player = 0; player < host::PlayerLimit(); ++player)
         {
             if (gPlayers.Acquire<0>(player) && gPlayers[player].effects.Test(effect))
             {
@@ -1250,7 +1251,7 @@ static void OnRemoveFilter(const uword_t effect, const ubyte_t filter,
         // Sending Packet to Player...
         // -------------------------------------------------
 
-        if (pNetGame != nullptr && pNetGame->pPlayerPool != nullptr && pNetGame->pPlayerPool->dwConnectedPlayers != 0)
+        if (host::HasPlayers())
         {
             const auto packet = static_cast<ControlEffectRemoveFilter*>
                 (ControlService::Instance().BeginPacket(ControlPackets::EffectRemoveFilter));
@@ -1261,7 +1262,7 @@ static void OnRemoveFilter(const uword_t effect, const ubyte_t filter,
 
             ControlService::Instance().EndPacket();
 
-            for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+            for (size_t player = 0; player < host::PlayerLimit(); ++player)
             {
                 if (gPlayers.Acquire<0>(player) && gPlayers[player].effects.Test(effect))
                 {
@@ -1291,7 +1292,7 @@ static void OnDeleteEffect(const uword_t effect) noexcept
         // Sending Packet to Player...
         // -------------------------------------------------
 
-        if (pNetGame != nullptr && pNetGame->pPlayerPool != nullptr && pNetGame->pPlayerPool->dwConnectedPlayers != 0)
+        if (host::HasPlayers())
         {
             const auto packet = static_cast<ControlEffectDelete*>
                 (ControlService::Instance().BeginPacket(ControlPackets::EffectDelete));
@@ -1300,7 +1301,7 @@ static void OnDeleteEffect(const uword_t effect) noexcept
 
             ControlService::Instance().EndPacket();
 
-            for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+            for (size_t player = 0; player < host::PlayerLimit(); ++player)
             {
                 if (gPlayers.Acquire<0>(player) && gPlayers[player].effects.Reset(effect))
                 {
@@ -1549,7 +1550,7 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() noexcept
 {
     CommandService::Instance().Tick();
 
-    if (pNetGame != nullptr)
+    if (host::Available())
     {
         for (size_t stream = 0; stream != kMaxStreams; ++stream)
         {
@@ -1566,27 +1567,23 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() noexcept
             {
                 case kVehicle:
                 {
-                    if (pNetGame->pVehiclePool == nullptr) break;
-                    if (pNetGame->pVehiclePool->pVehicle[index] == nullptr) break;
+                    if (!host::VehiclePosition(index, gStreams[stream].position)) break;
 
-                    gStreams[stream].position = pNetGame->pVehiclePool->pVehicle[index]->vecPosition;
+                    if (!host::HasPlayers()) break;
 
-                    if (pNetGame->pPlayerPool == nullptr) break;
-                    if (pNetGame->pPlayerPool->dwConnectedPlayers == 0) break;
-
-                    for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+                    for (size_t player = 0; player < host::PlayerLimit(); ++player)
                     {
                         if (gPlayers.Acquire<0>(player) == false)
                             goto VehicleDetach;
 
-                        if (pNetGame->pPlayerPool->pPlayer[player] == nullptr)
-                            goto VehicleDetach;
-                        if (pNetGame->pPlayerPool->pPlayer[player]->byteVehicleStreamedIn[index] == 0)
-                            goto VehicleDetach;
-
                         {
-                            const CVector delta = pNetGame->pPlayerPool->pPlayer[player]->vecPosition -
-                                gStreams[stream].position;
+                            CVector player_position;
+                            if (!host::PlayerPosition(player, player_position))
+                                goto VehicleDetach;
+                            if (!host::VehicleStreamedIn(player, index))
+                                goto VehicleDetach;
+
+                            const CVector delta = player_position - gStreams[stream].position;
 
                             if (delta.fX * delta.fX + delta.fY * delta.fY +
                                 delta.fZ * delta.fZ > gStreams[stream].distance * gStreams[stream].distance)
@@ -1612,26 +1609,23 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() noexcept
                 }
                 case kPlayer:
                 {
-                    if (pNetGame->pPlayerPool == nullptr) break;
-                    if (pNetGame->pPlayerPool->pPlayer[index] == nullptr) break;
+                    if (!host::PlayerPosition(index, gStreams[stream].position)) break;
 
-                    gStreams[stream].position = pNetGame->pPlayerPool->pPlayer[index]->vecPosition;
+                    if (!host::HasPlayers()) break;
 
-                    if (pNetGame->pPlayerPool->dwConnectedPlayers == 0) break;
-
-                    for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+                    for (size_t player = 0; player < host::PlayerLimit(); ++player)
                     {
                         if (gPlayers.Acquire<0>(player) == false)
                             goto PlayerDetach;
 
-                        if (pNetGame->pPlayerPool->pPlayer[player] == nullptr)
-                            goto PlayerDetach;
-                        if (pNetGame->pPlayerPool->pPlayer[player]->byteStreamedIn[index] == 0)
-                            goto PlayerDetach;
-
                         {
-                            const CVector delta = pNetGame->pPlayerPool->pPlayer[player]->vecPosition -
-                                gStreams[stream].position;
+                            CVector player_position;
+                            if (!host::PlayerPosition(player, player_position))
+                                goto PlayerDetach;
+                            if (!host::PlayerStreamedIn(player, index))
+                                goto PlayerDetach;
+
+                            const CVector delta = player_position - gStreams[stream].position;
 
                             if (delta.fX * delta.fX + delta.fY * delta.fY +
                                 delta.fZ * delta.fZ > gStreams[stream].distance * gStreams[stream].distance)
@@ -1657,25 +1651,21 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick() noexcept
                 }
                 case kObject:
                 {
-                    if (pNetGame->pObjectPool == nullptr) break;
-                    if (pNetGame->pObjectPool->pObjects[index] == nullptr) break;
+                    if (!host::ObjectPosition(index, gStreams[stream].position)) break;
 
-                    gStreams[stream].position = pNetGame->pObjectPool->pObjects[index]->matWorld.pos;
+                    if (!host::HasPlayers()) break;
 
-                    if (pNetGame->pPlayerPool == nullptr) break;
-                    if (pNetGame->pPlayerPool->dwConnectedPlayers == 0) break;
-
-                    for (size_t player = 0; player <= pNetGame->pPlayerPool->dwPlayerPoolSize; ++player)
+                    for (size_t player = 0; player < host::PlayerLimit(); ++player)
                     {
                         if (gPlayers.Acquire<0>(player) == false)
                             goto ObjectDetach;
 
-                        if (pNetGame->pPlayerPool->pPlayer[player] == nullptr)
-                            goto ObjectDetach;
-
                         {
-                            const CVector delta = pNetGame->pPlayerPool->pPlayer[player]->vecPosition -
-                                gStreams[stream].position;
+                            CVector player_position;
+                            if (!host::PlayerPosition(player, player_position))
+                                goto ObjectDetach;
+
+                            const CVector delta = player_position - gStreams[stream].position;
 
                             if (delta.fX * delta.fX + delta.fY * delta.fY +
                                 delta.fZ * delta.fZ > gStreams[stream].distance * gStreams[stream].distance)
@@ -1890,8 +1880,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void** const ppData) noexcept
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX* const amx) noexcept
 {
-    if (pNetGame == nullptr)
-        pNetGame = reinterpret_cast<CNetGame*(*)()>(ppPluginData[PLUGIN_DATA_NETGAME])();
+    host::OnAmxLoad();
 
     Pawn::Instance().RegisterScript(amx);
 
