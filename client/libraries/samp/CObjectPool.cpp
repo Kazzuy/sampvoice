@@ -120,7 +120,7 @@ void SAMP::CObjectPool::DrawLast() {
 }
 
 SAMP::CObjectSA* SAMP::CObjectPool::GetObject(ID nId) {
-	return ((CObjectSA * (__thiscall*)(CObjectPool*, ID))SAMP_ADDROF(0x2DC0))(this, nId);
+	return ((CObjectSA * (__thiscall*)(CObjectPool*, ID))SAMP_ADDROF_DL(0x2DC0, 0x2E10))(this, nId);
 }
 
 #endif

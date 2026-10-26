@@ -19,12 +19,25 @@
 
 #define SAMP_ADDROF(offset) (SAMP::baseSampAddress + offset)
 
+// R3 offset by default, DL offset when building for 0.3.DL
+#if defined(SAMP_DL)
+#define SAMP_ADDROF_DL(r3_offset, dl_offset) SAMP_ADDROF(dl_offset)
+#else
+#define SAMP_ADDROF_DL(r3_offset, dl_offset) SAMP_ADDROF(r3_offset)
+#endif
+
 #define SAMP_UNUSED 0
 
 #define SAMP_VIRTUAL {}
 
-#if !defined(SAMP_R1) && !defined(SAMP_R3)
+#if !defined(SAMP_R1) && !defined(SAMP_R3) && !defined(SAMP_DL)
 #define SAMP_R1
+#endif
+
+// shortcut: 0.3.DL reuses the R3 struct layouts and method offsets; only the offsets checked in
+// specs/001-port-03dl-openmp/research.md are overridden for DL. Verify more before using other SAMP:: members.
+#if defined(SAMP_DL) && !defined(SAMP_R3)
+#define SAMP_R3
 #endif
 
 #include <d3d9.h>

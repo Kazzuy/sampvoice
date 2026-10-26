@@ -95,7 +95,11 @@ void SAMP::CChat::FilterOutInvalidChars(char* szText) {
 
 #elif defined(SAMP_R3)
 
+#if defined(SAMP_DL)
+SAMP::CChat*& SAMP::pChat() { return *(SAMP::CChat**)SAMP_ADDROF(0x2ACA10); }
+#else
 SAMP::CChat*& SAMP::pChat() { return *(SAMP::CChat**)SAMP_ADDROF(0x26E8C8); }
+#endif
 
 SAMP::CChat::CChat(IDirect3DDevice9* pDevice, CFonts* pFontRenderer, const char* szLogPath) {
 	((void(__thiscall*)(CChat*, IDirect3DDevice9*, CFonts*, const char*))SAMP_ADDROF(0x67C00))(this, pDevice, pFontRenderer, szLogPath);
@@ -158,7 +162,7 @@ void SAMP::CChat::Render() {
 }
 
 void SAMP::CChat::AddEntry(int nType, const char* szText, const char* szPrefix, D3DCOLOR textColor, D3DCOLOR prefixColor) {
-	((void(__thiscall*)(CChat*, int, const char*, const char*, D3DCOLOR, D3DCOLOR))SAMP_ADDROF(0x67460))(this, nType, szText, szPrefix, textColor, prefixColor);
+	((void(__thiscall*)(CChat*, int, const char*, const char*, D3DCOLOR, D3DCOLOR))SAMP_ADDROF_DL(0x67460, 0x67650))(this, nType, szText, szPrefix, textColor, prefixColor);
 }
 
 void SAMP::CChat::Draw() {

@@ -192,7 +192,7 @@ int SAMP::CPlayerPool::GetPing(ID nId) {
 }
 
 const char* SAMP::CPlayerPool::GetName(ID nId) {
-	return ((const char* (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF(0x16F00))(this, nId);
+	return ((const char* (__thiscall*)(CPlayerPool*, ID))SAMP_ADDROF_DL(0x16F00, 0x170D0))(this, nId);
 }
 
 int SAMP::CPlayerPool::GetLocalPlayerPing() {
@@ -208,7 +208,7 @@ int SAMP::CPlayerPool::GetCount(BOOL bIncludeNPC) {
 }
 
 SAMP::CLocalPlayer* SAMP::CPlayerPool::GetLocalPlayer() {
-	return ((CLocalPlayer * (__thiscall*)(CPlayerPool*))SAMP_ADDROF(0x1A30))(this);
+	return ((CLocalPlayer * (__thiscall*)(CPlayerPool*))SAMP_ADDROF_DL(0x1A30, 0x1A80))(this);
 }
 
 SAMP::CObjectSA* SAMP::CPlayerPool::FindAccessory(::CObject* pGameObject) {

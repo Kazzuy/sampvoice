@@ -18,6 +18,7 @@
 #include <game/CVehicle.h>
 #include <game/CPed.h>
 #include <game/CObject.h>
+#include <util/samp_compat.hpp>
 
 #include "channel.hpp"
 #include "effect.hpp"
@@ -258,7 +259,7 @@ public:
                 if (const auto pNetGame = SAMP::pNetGame(); pNetGame != nullptr)
                     if (const auto pPlayerPool = pNetGame->GetPlayerPool(); pPlayerPool != nullptr)
                         if (const auto pPlayer = pPlayerPool->GetPlayer(index); pPlayer != nullptr)
-                            if (const auto pPlayerPed = pPlayer->m_pPed; pPlayerPed != nullptr)
+                            if (const auto pPlayerPed = samp_compat::remote_player_ped(pPlayer); pPlayerPed != nullptr)
                                 if (const auto pPlayerGamePed = pPlayerPed->m_pGamePed; pPlayerGamePed != nullptr)
                                     if (const auto pPlayerMatrix = pPlayerGamePed->GetMatrix(); pPlayerMatrix != nullptr)
                                         return SetPosition(pPlayerMatrix->pos), true;

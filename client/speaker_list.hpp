@@ -27,6 +27,7 @@
 #include <util/texture.hpp>
 #include <util/imgui_utils.hpp>
 #include <util/game_utils.hpp>
+#include <util/samp_compat.hpp>
 #include <util/logger.hpp>
 #include <util/render.hpp>
 
@@ -257,7 +258,7 @@ public:
                                 {
                                     if (const auto pPlayer = pPlayerPool->GetPlayer(player_id); pPlayer != nullptr)
                                     {
-                                        if (const auto pPlayerPed = pPlayer->m_pPed; pPlayerPed != nullptr)
+                                        if (const auto pPlayerPed = samp_compat::remote_player_ped(pPlayer); pPlayerPed != nullptr)
                                         {
                                             if (const auto pGamePed = pPlayerPed->m_pGamePed; pGamePed != nullptr)
                                             {
