@@ -69,3 +69,10 @@ copied files matched `MANIFEST.txt` SHA-256 (0 mismatches).
 
 - Scenario 9 (T034), open.mp 1.6.7.3218 on the copy of the Imperion server (no `sampvoice_voice.exe` present): UDP 2020 owned by `omp-server.exe`; `voice.log` shows `connection to control server established`, `voice service opened`, `launching 7 voice workers...`. Ctrl+C: before the `gCommandAbort` fix the process did not exit in 40 s (`voice.log` ended at `connecting to control server`); after the fix it exited with code 0 after 2.5 s and `voice.log` ended with `failed to initialize command service`. The packaged dll (built with `/pathmap`) later ran on the copy and on the Imperion server and stopped cleanly (same last `voice.log` line); the exit code was not captured for those two runs.
 - T031 (Constitution V): `voice/Makefile` now builds `$(filter-out embed.cpp,$(wildcard *.cpp))`. **Makefile build unverified**: this machine has no Linux, WSL, `g++` or `make`. The MSBuild build of `voice.vcxproj` (which does not list `embed.cpp`) and the CMake build of `control/omp` pass through `setup/package-server.ps1`.
+
+### Review fixes (2026-10-27)
+
+- Relay failure is now reported: with UDP 2020 held by another process, the open.mp rig logs `[Error] [sv:omp] voice relay stopped (code -1), voice chat is down, see voice.log` once, next to `control component ready`; `voice.log` shows `failed to bind(0.0.0.0:2020) (10013)`. A normal start logs no such line, and Ctrl+C still exits with code 0 after 2.5 s.
+- `package-server.ps1 -Platform samp` passes when `OMP_DEPS_DIR` points to a folder that no longer exists.
+- The Pawn coverage check ignores `//` and `/* */` comments (a native named only in a comment is reported as not covered).
+- `INSTALL-SERVER.md` file table says which process reads `voice.cfg` on each platform.

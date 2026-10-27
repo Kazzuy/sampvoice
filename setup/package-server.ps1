@@ -109,7 +109,7 @@ function Test-BinaryPaths([string]$File, [string]$Rel) {
     $bytes = [IO.File]::ReadAllBytes($File)
     $ascii = [Text.Encoding]::ASCII.GetString($bytes)
     $utf16 = [Text.Encoding]::Unicode.GetString($bytes)
-    $leaks = @($Root, $env:USERPROFILE) + $(if ($OmpDepsDir) { (Resolve-Path $OmpDepsDir).Path })
+    $leaks = @($Root, $env:USERPROFILE) + $(if ($OmpDepsDir -and (Test-Path $OmpDepsDir)) { (Resolve-Path $OmpDepsDir).Path })
     foreach ($leak in $leaks) {
         foreach ($v in $leak, $leak.Replace('\', '/')) {
             foreach ($hay in $ascii, $utf16) {
@@ -129,7 +129,8 @@ function Test-IncludeIdentity([string]$Dir) {
 
 function Test-IncludeCoverage([string]$Dir) {
     $inc = Get-Content (Join-Path $Root 'documents\sampvoice.inc') -Raw
-    $test = Get-Content (Join-Path $Root 'tests\pawn\svcoverage.pwn') -Raw
+    # Comments do not count as calls.
+    $test = (Get-Content (Join-Path $Root 'tests\pawn\svcoverage.pwn') -Raw) -replace '(?s)/\*.*?\*/', '' -replace '(?m)//.*$', ''
     $names = [regex]::Matches($inc, '(?m)^native\s+[^\s:]+:\s*(\w+)\(') | ForEach-Object { $_.Groups[1].Value }
     $enum = [regex]::Match($inc, 'enum\s+SV_FILTER\s*\{([^}]*)\}').Groups[1].Value
     $names += [regex]::Matches($enum, '\bSV_\w+') | ForEach-Object { $_.Value }

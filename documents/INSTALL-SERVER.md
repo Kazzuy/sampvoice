@@ -17,7 +17,7 @@ open.mp blocks a legacy plugin named `sampvoice`. If you copy the SA:MP package 
 | `plugins/sampvoice.dll` (SA:MP) | server `plugins/` folder |
 | `sampvoice_voice.exe` (SA:MP package only) | server root, next to the server executable |
 | `control.cfg` | server root (read by the plugin or component) |
-| `voice.cfg` | server root (read by `sampvoice_voice.exe`) |
+| `voice.cfg` | server root (read by the voice relay: inside the component on open.mp, `sampvoice_voice.exe` on SA:MP) |
 | `include/sampvoice.inc`, `include/sampvoice.hnd` | your Pawn include folder |
 
 ## Steps
