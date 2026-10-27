@@ -282,8 +282,21 @@ public:
 
     void onTick(Microseconds, TimePoint) override
     {
-        if (_loaded)
-            ProcessTick();
+        if (!_loaded)
+            return;
+
+        ProcessTick();
+
+        // The relay stops by itself only on an error (voice.cfg missing, voice port in use); say so once.
+        if (!_relayReported)
+        {
+            const int code = SvRelayExitCode();
+            if (code != kSvRelayRunning)
+            {
+                _relayReported = true;
+                _core->logLn(LogLevel::Error, "[sv:omp] voice relay stopped (code %d), voice chat is down, see voice.log", code);
+            }
+        }
     }
 
     // Network
@@ -384,6 +397,7 @@ private:
     ICore*          _core   = nullptr;
     IPawnComponent* _pawn   = nullptr;
     bool            _loaded = false;
+    bool            _relayReported = false;
 };
 
 COMPONENT_ENTRY_POINT()
