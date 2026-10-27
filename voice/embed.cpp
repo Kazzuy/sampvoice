@@ -46,6 +46,7 @@ namespace sv_relay
 namespace
 {
     std::thread gRelayThread;
+    std::atomic<int> gRelayExit { kSvRelayRunning };
 }
 
 bool SvRelayStart() noexcept
@@ -53,12 +54,18 @@ bool SvRelayStart() noexcept
     if (gRelayThread.joinable()) return false;
 
     sv_relay::gCommandAbort.store(false, std::memory_order_release);
+    gRelayExit.store(kSvRelayRunning, std::memory_order_release);
     gRelayThread = std::thread([]() noexcept -> void
     {
         static const char* const argv[] = { "sampvoice", nullptr };
-        sv_relay::sv_relay_main(1, argv);
+        gRelayExit.store(sv_relay::sv_relay_main(1, argv), std::memory_order_release);
     });
     return true;
+}
+
+int SvRelayExitCode() noexcept
+{
+    return gRelayExit.load(std::memory_order_acquire);
 }
 
 void SvRelayStop() noexcept
