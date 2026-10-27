@@ -28,6 +28,7 @@
 #include <ysf/globals.h>
 #include <util/host.hpp>
 #include <util/raknet.hpp>
+#include <relay.hpp>
 
 // Entry points of the control core (control/main.cpp)
 // ----------------------------------------------------------------
@@ -249,6 +250,9 @@ public:
 
         _loaded = true;
 
+        if (!SvRelayStart())
+            _core->logLn(LogLevel::Error, "[sv:omp] voice relay failed to start");
+
         _pawn->getEventDispatcher().addEventHandler(this);
         _core->getEventDispatcher().addEventHandler(this);
         _core->getPlayers().getPlayerConnectDispatcher().addEventHandler(this);
@@ -366,6 +370,7 @@ private:
             _pawn->getEventDispatcher().removeEventHandler(this);
 
         Unload();
+        SvRelayStop(); // the relay exits once the control link is closed by Unload()
 
         RakNet::Instance().SendHook = nullptr;
 

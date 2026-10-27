@@ -17,7 +17,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(SampVoiceControl SHARED
 	Component.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../main.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../libraries/pawn/amxplugin.cpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/../libraries/pawn/amxplugin.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../../voice/embed.cpp)
 
 target_include_directories(SampVoiceControl BEFORE PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/shim)
