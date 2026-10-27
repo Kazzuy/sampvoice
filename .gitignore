@@ -1,6 +1,7 @@
 /.vs/
 
 /binaries/
+/dist/
 
 /client/build/
 /control/build/
