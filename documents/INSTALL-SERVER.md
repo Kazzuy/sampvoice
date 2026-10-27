@@ -15,7 +15,7 @@ open.mp blocks a legacy plugin named `sampvoice`. If you copy the SA:MP package 
 |------|-------------|
 | `components/SampVoiceControl.dll` (open.mp) | server `components/` folder |
 | `plugins/sampvoice.dll` (SA:MP) | server `plugins/` folder |
-| `sampvoice_voice.exe` | server root, next to the server executable |
+| `sampvoice_voice.exe` (SA:MP package only) | server root, next to the server executable |
 | `control.cfg` | server root (read by the plugin or component) |
 | `voice.cfg` | server root (read by `sampvoice_voice.exe`) |
 | `include/sampvoice.inc`, `include/sampvoice.hnd` | your Pawn include folder |
@@ -27,7 +27,10 @@ open.mp blocks a legacy plugin named `sampvoice`. If you copy the SA:MP package 
 3. Start the server. Expect one of these log lines:
    - open.mp: `[sv:omp] SampVoice control component ready`
    - SA:MP: the banner line `SampVoice by MOR loaded`
-4. Start `sampvoice_voice.exe` from the server root so it finds `voice.cfg`.
+4. SA:MP only: start `sampvoice_voice.exe` from the server root so it finds `voice.cfg`.
+   open.mp: nothing to start. The voice relay runs inside the component, reads `voice.cfg` from the server root,
+   logs to `voice.log`, and stops with the server. Do not also run a separate `sampvoice_voice.exe` against the same
+   server: the first relay that connects to the control service wins.
 
 ## Ports
 

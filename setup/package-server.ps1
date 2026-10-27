@@ -163,7 +163,6 @@ function Test-Package([string]$Dir, [string[]]$Expected) {
 
 function Get-Layout([string]$Plat, [string]$ControlDll) {
     $l = [ordered]@{
-        'sampvoice_voice.exe'  = Join-Path $Root 'voice\binaries\sampvoice.exe'
         'control.cfg'          = Join-Path $Root 'control\control.cfg'
         'voice.cfg'            = Join-Path $Root 'voice\voice.cfg'
         'include/sampvoice.inc' = Join-Path $Root 'documents\sampvoice.inc'
@@ -171,7 +170,11 @@ function Get-Layout([string]$Plat, [string]$ControlDll) {
         'INSTALL-SERVER.md'    = Join-Path $Root 'documents\INSTALL-SERVER.md'
     }
     if ($Plat -eq 'omp') { $l['components/SampVoiceControl.dll'] = $ControlDll }
-    else { $l['plugins/sampvoice.dll'] = $ControlDll }
+    else
+    {
+        $l['plugins/sampvoice.dll'] = $ControlDll
+        $l['sampvoice_voice.exe'] = Join-Path $Root 'voice\binaries\sampvoice.exe'
+    }
     return $l
 }
 
@@ -179,8 +182,9 @@ function Get-Layout([string]$Plat, [string]$ControlDll) {
 $script:NotVerified = $false
 Test-Prerequisites
 
-Build-Project 'voice\voice.vcxproj' 'voice\binaries\sampvoice.exe'
 $plats = if ($Platform -eq 'all') { 'omp', 'samp' } else { @($Platform) }
+# The open.mp component embeds the relay; only the SA:MP package ships the separate voice executable.
+if ('samp' -in $plats) { Build-Project 'voice\voice.vcxproj' 'voice\binaries\sampvoice.exe' }
 $failed = $false
 $ompDll = $null; $sampDll = $null
 if ('samp' -in $plats) { Build-Project 'control\control.vcxproj' 'control\binaries\sampvoice.dll'; $sampDll = Join-Path $Root 'control\binaries\sampvoice.dll' }
