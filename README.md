@@ -5,8 +5,8 @@
 
 #### Version support
 ----------------------------------
-* Client: SA:MP 0.3.7 (R1, R3)
-* Server: SA:MP 0.3.7 (R2)
+* Client: SA:MP 0.3.7 (R1, R3), SA:MP 0.3.DL (R1)
+* Server: SA:MP 0.3.7 (R2), open.mp (native component, see below)
 
 ## Features
 ---------------------------------
@@ -39,6 +39,15 @@ Players have access to 2 installation options: automatic (via the installer) and
 1. Download from [the `releases` page](https://github.com/CyberMor/sampvoice/releases) the desired version of the plugin for your platform.
 2. Unpack the archive to the root directory of the server.
 3. Add to the *server.cfg* server configuration file the line *"plugins sampvoice"* for *Win32* and *"plugins sampvoice.so"* for *Linux x86*. **(If you have a Pawn.RakNet plugin be sure to place SampVoice after it)**
+
+#### For open.mp servers
+---------------------------------
+open.mp does not load this server plugin as a legacy plugin (it blocks a legacy plugin named `sampvoice`, and the plugin needs the RakNet server export that open.mp does not have). Use the native component instead:
+1. Build `control/omp` (see **Compiling**) and copy `SampVoiceControl.dll` to the `components` folder of the server. Remove any other SampVoice component or plugin first.
+2. Run the voice server (`sampvoice.exe` from `voice`, or `sampvoice.out` on Linux) next to the open.mp server. It connects to the component on `localhost:2020` (see `control.cfg` and `voice.cfg`).
+3. Players need the client that matches their game: build with `SAMP_DL` for 0.3.DL, `SAMP_R3` for 0.3.7 R3, default for 0.3.7 R1. The client checks the game version when it starts and disables itself on a mismatch. Start the game with `samp.exe`, not `gta_sa.exe`, because `samp.exe` is what loads `samp.dll`.
+
+This component speaks protocol 4.x. Components and plugins of older SampVoice generations (3.x) are not compatible with these clients.
 
 ## Usage
 ---------------------------------
@@ -150,8 +159,17 @@ cd sampvoice
 
 ### Windows (Client/Server)
 ---------------------------------
-To compile the client side of the plugin, you need the *DirectX 9 SDK*. By default, the client part is compiled for version **SA: MP 0.3.7 (R1)**, but you can also explicitly tell the compiler the version for the build using the **SAMP_R1** and **SAMP_R3** macros. In order to build the client and server parts of the plugin for the *Win32* platform, open the *sampvoice.sln* project in Visual Studio 2019 (or higher) and compile it:
+To compile the client side of the plugin, you need the *DirectX 9 SDK*. By default, the client part is compiled for version **SA: MP 0.3.7 (R1)**, but you can also explicitly tell the compiler the version for the build using the **SAMP_R1**, **SAMP_R3** and **SAMP_DL** (0.3.DL) macros. In order to build the client and server parts of the plugin for the *Win32* platform, open the *sampvoice.sln* project in Visual Studio 2019 (or higher) and compile it:
 > Build -> Build Solution (F7)
+
+### open.mp component (Windows)
+---------------------------------
+The component is built with CMake and the MIT-licensed [open.mp SDK](https://github.com/openmultiplayer/open.mp-sdk) and [open.mp network](https://github.com/openmultiplayer/open.mp-network). Clone both into one folder (they are not stored in this repository), then:
+```sh
+cmake -S control/omp -B build -G "Visual Studio 17 2022" -A Win32 -DOMP_DEPS_DIR=<folder with open.mp-sdk and open.mp-network>
+cmake --build build --config Release
+```
+The result is `build/Release/SampVoiceControl.dll`. The Windows build needs the `v141_xp` toolset only for the plugins in `sampvoice.sln`; the component uses the toolset of the generator.
 
 ### Linux (Ubuntu 20.04) (Server)
 ---------------------------------

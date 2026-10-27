@@ -85,6 +85,12 @@ public:
     {
         assert(device != nullptr);
 
+        if (!Addresses::Instance().IsInitialized())
+        {
+            Logger::Instance().LogToFile("[sv:err:pluginmenu:initialize] samp.dll is not loaded (start the game with samp.exe)");
+            return false;
+        }
+
         if (const BYTE return_opcode = 0xC3;
             !_open_chat_patch.Initialize(Addresses::Instance().OpenChatFunction(), &return_opcode, false) ||
             !_open_scoreboard_patch.Initialize(Addresses::Instance().OpenScoreboardFunction(), &return_opcode, false) ||

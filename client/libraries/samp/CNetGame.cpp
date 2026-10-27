@@ -194,7 +194,11 @@ void SAMP::CNetGame::ResetPools() {
 
 #elif defined(SAMP_R3)
 
+#if defined(SAMP_DL)
+SAMP::CNetGame*& SAMP::pNetGame() { return *(SAMP::CNetGame**)SAMP_ADDROF(0x2ACA24); }
+#else
 SAMP::CNetGame*& SAMP::pNetGame() { return *(SAMP::CNetGame**)SAMP_ADDROF(0x26E8DC); }
+#endif
 TICK& SAMP::CNetGame::lastPlayersUpdateRequest() { return *(TICK*)SAMP_ADDROF(0x1189F0); }
 
 SAMP::CNetGame::CNetGame(const char* szHostAddress, int nPort, const char* szNick, const char* szPass) {
@@ -382,11 +386,11 @@ void SAMP::CNetGame::ProcessGameStuff() {
 }
 
 SAMP::CPlayerPool* SAMP::CNetGame::GetPlayerPool() {
-	return ((CPlayerPool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x1160))(this);
+	return ((CPlayerPool * (__thiscall*)(CNetGame*))SAMP_ADDROF_DL(0x1160, 0x1170))(this);
 }
 
 SAMP::CObjectPool* SAMP::CNetGame::GetObjectPool() {
-	return ((CObjectPool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x2DF0))(this);
+	return ((CObjectPool * (__thiscall*)(CNetGame*))SAMP_ADDROF_DL(0x2DF0, 0x2E40))(this);
 }
 
 SAMP::CActorPool* SAMP::CNetGame::GetActorPool() {
@@ -402,7 +406,7 @@ BOOL SAMP::CNetGame::LanMode() {
 }
 
 SAMP::CVehiclePool* SAMP::CNetGame::GetVehiclePool() {
-	return ((CVehiclePool * (__thiscall*)(CNetGame*))SAMP_ADDROF(0x1170))(this);
+	return ((CVehiclePool * (__thiscall*)(CNetGame*))SAMP_ADDROF_DL(0x1170, 0x1180))(this);
 }
 
 RakClientInterface* SAMP::CNetGame::GetRakClient() {

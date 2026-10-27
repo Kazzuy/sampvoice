@@ -307,7 +307,11 @@ void SAMP::CGameSA::ProcessFrameLimiter() {
 
 char*& SAMP::CGameSA::szGameTextMessage() { return *(char**)SAMP_ADDROF(0x150084); }
 bool* SAMP::CGameSA::aUsedPlayerSlots() { return (bool*)SAMP_ADDROF(0x150090); }
+#if defined(SAMP_DL)
+SAMP::CGameSA*& SAMP::pGame() { return *(SAMP::CGameSA**)SAMP_ADDROF(0x2ACA3C); }
+#else
 SAMP::CGameSA*& SAMP::pGame() { return *(SAMP::CGameSA**)SAMP_ADDROF(0x26E8F4); }
+#endif
 
 SAMP::CGameSA::CGameSA() {
 	((void(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9F870))(this);
@@ -322,7 +326,7 @@ float SAMP::CGameSA::FindGroundZ(CVectorSA vPoint) {
 }
 
 void SAMP::CGameSA::SetCursorMode(int nMode, BOOL bImmediatelyHideCursor) {
-	((void(__thiscall*)(CGameSA*, int, BOOL))SAMP_ADDROF(0x9FFE0))(this, nMode, bImmediatelyHideCursor);
+	((void(__thiscall*)(CGameSA*, int, BOOL))SAMP_ADDROF_DL(0x9FFE0, 0xA0530))(this, nMode, bImmediatelyHideCursor);
 }
 
 void SAMP::CGameSA::InitGame() {
@@ -334,7 +338,7 @@ void SAMP::CGameSA::StartGame() {
 }
 
 BOOL SAMP::CGameSA::IsMenuVisible() {
-	return ((BOOL(__thiscall*)(CGameSA*))SAMP_ADDROF(0xA0210))(this);
+	return ((BOOL(__thiscall*)(CGameSA*))SAMP_ADDROF_DL(0xA0210, 0xA0760))(this);
 }
 
 BOOL SAMP::CGameSA::IsStarted() {
@@ -590,7 +594,7 @@ SAMP::CObjectSA* SAMP::CGameSA::CreateObject(int nModel, CVectorSA position, CVe
 }
 
 void SAMP::CGameSA::ProcessInputEnabling() {
-	((void(__thiscall*)(CGameSA*))SAMP_ADDROF(0x9FEC0))(this);
+	((void(__thiscall*)(CGameSA*))SAMP_ADDROF_DL(0x9FEC0, 0xA0410))(this);
 }
 
 void SAMP::CGameSA::ProcessFrameLimiter() {

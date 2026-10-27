@@ -876,8 +876,47 @@ static void OnDeviceDestroy() noexcept
 // Load Callbacks
 // ----------------------------------------------------------------
 
+// shortcut: only the 0.3.DL entry point is verified; R1/R3 entry points are unchecked, so an R1/R3
+// build only rejects DL. Upgrade when R1/R3 samp.dll files are available to verify.
+static bool IsSupportedSampBuild(const HMODULE module) noexcept
+{
+    constexpr DWORD kEntryPointDL = 0xFDB60;
+
+    const auto dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(module);
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE)
+        return false;
+
+    const auto nt = reinterpret_cast<const IMAGE_NT_HEADERS32*>(
+        reinterpret_cast<const BYTE*>(module) + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE)
+        return false;
+
+    const bool is_dl = nt->OptionalHeader.AddressOfEntryPoint == kEntryPointDL;
+
+#if defined(SAMP_DL)
+    return is_dl;
+#else
+    return !is_dl;
+#endif
+}
+
 static bool OnSampLoad(const HMODULE module) noexcept
 {
+    if (!IsSupportedSampBuild(module))
+    {
+        Logger::Instance().LogToFile("[sv:err:plugin] samp.dll build does not match this SampVoice build");
+
+        MessageBoxA(nullptr, "This SampVoice build does not match your SA:MP version. "
+            "Download the SampVoice build for your SA:MP version. Voice chat is disabled.",
+            "SampVoice", MB_OK | MB_ICONERROR);
+
+        Render::Instance().Deinitialize();
+        Localization::Instance().Deinitialize();
+        Logger::Instance().Deinitialize();
+        Storage::Instance().Deinitialize();
+        return false;
+    }
+
     Addresses::Instance().Initialize(module);
 
     Samp::Instance().OnLoad = OnGameLoad;

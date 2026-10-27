@@ -23,6 +23,7 @@
 
 #include "render.hpp"
 #include "samp.hpp"
+#include "samp_compat.hpp"
 
 namespace game_utils
 {
@@ -66,7 +67,7 @@ namespace game_utils
         const auto pLocalPlayer = pPlayerPool->GetLocalPlayer();
         if (pLocalPlayer == nullptr) return false;
 
-        return pLocalPlayer->m_bIsActive;
+        return samp_compat::local_player_active(pLocalPlayer);
     }
 
     inline bool is_player_visible(const uword_t player) noexcept
@@ -83,7 +84,7 @@ namespace game_utils
         const auto pPlayer = pPlayerPool->GetPlayer(player);
         if (pPlayer == nullptr) return false;
 
-        const auto pPlayerPed = pPlayer->m_pPed;
+        const auto pPlayerPed = samp_compat::remote_player_ped(pPlayer);
         if (pPlayerPed == nullptr) return false;
 
         const auto pPlayerGamePed = pPlayerPed->m_pGamePed;
@@ -106,7 +107,7 @@ namespace game_utils
         float radar_width  = *reinterpret_cast<float*>(0x866B74); // 76
         float radar_height = *reinterpret_cast<float*>(0x866B78); // 94
 
-#if defined(SAMP_R3)
+#if defined(SAMP_R3) && !defined(SAMP_DL)
         if (TheCamera.m_bWideScreenOn)
         {
             mult_width   = 0.00222F * screen_height / screen_width;
@@ -139,9 +140,12 @@ namespace game_utils
         ApplyPatch(base, 0x298116, "\xB8\x45\x00\x00\x00\xC2\x1C\x00");
         ApplyPatch(base, 0x286923, "\xB8\x45\x00\x00\x00\xC2\x1C\x00");
         ApplyPatch(base, 0x99250,  "\xC3");
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         ApplyPatch(base, 0xC4DC0,  "\xB8\x45\x00\x00\x00\xC2\x1C\x00");
         ApplyPatch(base, 0x9D1A0,  "\xC3");
+#elif defined(SAMP_DL)
+        ApplyPatch(base, 0xC5C10,  "\xB8\x45\x00\x00\x00\xC2\x1C\x00");
+        ApplyPatch(base, 0x9D6F0,  "\xC3");
 #else
 #error Unknown SAMP version
 #endif

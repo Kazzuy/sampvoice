@@ -278,7 +278,7 @@ void SAMP::CRemotePlayer::SetColor(D3DCOLOR color) {
 }
 
 D3DCOLOR SAMP::CRemotePlayer::GetColorAsRGBA() {
-	return ((D3DCOLOR(__thiscall*)(CRemotePlayer*))SAMP_ADDROF(0x15C00))(this);
+	return ((D3DCOLOR(__thiscall*)(CRemotePlayer*))SAMP_ADDROF_DL(0x15C00, 0x15E20))(this);
 }
 
 D3DCOLOR SAMP::CRemotePlayer::GetColorAsARGB() {

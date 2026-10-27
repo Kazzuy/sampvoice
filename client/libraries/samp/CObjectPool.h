@@ -61,7 +61,11 @@ SAMP_END
 #include "CVectorSA.h"
 #include "CObjectSA.h"
 
+#if defined(SAMP_DL)
+#define MAX_OBJECTS 2100
+#else
 #define MAX_OBJECTS 1000
+#endif
 
 class CObject;
 

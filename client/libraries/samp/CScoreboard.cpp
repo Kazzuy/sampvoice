@@ -51,7 +51,11 @@ void SAMP::CScoreboard::UpdateList() {
 
 #elif defined(SAMP_R3)
 
+#if defined(SAMP_DL)
+SAMP::CScoreboard*& SAMP::pScoreboard() { return *(SAMP::CScoreboard**)SAMP_ADDROF(0x2AC9DC); }
+#else
 SAMP::CScoreboard*& SAMP::pScoreboard() { return *(SAMP::CScoreboard**)SAMP_ADDROF(0x26E894); }
+#endif
 
 SAMP::CScoreboard::CScoreboard(IDirect3DDevice9* pDevice) {
 	((void(__thiscall*)(CScoreboard*, IDirect3DDevice9*))SAMP_ADDROF(0x6E2C0))(this, pDevice);
@@ -66,7 +70,7 @@ void SAMP::CScoreboard::GetRect(CRectSA* pRect) {
 }
 
 void SAMP::CScoreboard::Close(bool bHideCursor) {
-	((void(__thiscall*)(CScoreboard*, bool))SAMP_ADDROF(0x6E270))(this, bHideCursor);
+	((void(__thiscall*)(CScoreboard*, bool))SAMP_ADDROF_DL(0x6E270, 0x6E410))(this, bHideCursor);
 }
 
 void SAMP::CScoreboard::ResetDialogControls(CDXUTDialog* pDialog) {

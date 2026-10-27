@@ -47,6 +47,12 @@ public:
         _base = nullptr;
     }
 
+    // False until samp.dll is loaded; code that patches samp.dll must check this first.
+    bool IsInitialized() const noexcept
+    {
+        return _base != nullptr;
+    }
+
 public:
 
     ptr_t Base() const noexcept
@@ -62,8 +68,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x2401D3;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0xB658;
+#elif defined(SAMP_DL)
+        return _base + 0xB678;
 #endif
     }
 
@@ -72,8 +80,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x628DF;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x65D2F;
+#elif defined(SAMP_DL)
+        return _base + 0x65F1F;
 #endif
     }
 
@@ -82,8 +92,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x6290F;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x65D5F;
+#elif defined(SAMP_DL)
+        return _base + 0x65F4F;
 #endif
     }
 
@@ -92,8 +104,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x2565E2;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0xC57E2;
+#elif defined(SAMP_DL)
+        return _base + 0xC6614;
 #endif
     }
 
@@ -102,8 +116,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x9380;
-#elif defined(SAMP_R3);
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x9510;
+#elif defined(SAMP_DL)
+        return _base + 0x9570;
 #endif
     }
 
@@ -112,8 +128,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x657E0;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x68D10;
+#elif defined(SAMP_DL)
+        return _base + 0x68EC0;
 #endif
     }
 
@@ -122,8 +140,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x5D7B0;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x60B50;
+#elif defined(SAMP_DL)
+        return _base + 0x60D40;
 #endif
     }
 
@@ -132,8 +152,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x6AD30;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x6EC80;
+#elif defined(SAMP_DL)
+        return _base + 0x6EE10;
 #endif
     }
 
@@ -142,8 +164,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x10D50;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x13E80;
+#elif defined(SAMP_DL)
+        return _base + 0x14100;
 #endif
     }
 
@@ -152,8 +176,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x10B90;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x13CB0;
+#elif defined(SAMP_DL)
+        return _base + 0x13F40;
 #endif
     }
 
@@ -162,8 +188,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x3AD0;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x3AD0;
+#elif defined(SAMP_DL)
+        return _base + 0x3B20;
 #endif
     }
 
@@ -172,8 +200,10 @@ public:
         assert(_base != nullptr);
 #if defined(SAMP_R1)
         return _base + 0x686C0;
-#elif defined(SAMP_R3)
+#elif defined(SAMP_R3) && !defined(SAMP_DL)
         return _base + 0x6C630;
+#elif defined(SAMP_DL)
+        return _base + 0x6C7E0;
 #endif
     }
 
