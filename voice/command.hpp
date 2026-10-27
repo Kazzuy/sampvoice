@@ -19,6 +19,9 @@
 
 #include "logger.hpp"
 
+// Set by a host that embeds the relay (voice/embed.cpp) so that Initialize stops waiting for the Control Server
+inline std::atomic_bool gCommandAbort { false };
+
 // Types
 // --------------------------------------------
 
@@ -193,7 +196,10 @@ public:
 
         constexpr Time kConnectCooldown = Time::Seconds(1);
         while (!socket.Connect(control)) // Wait until the Control Server becomes available
+        {
+            if (gCommandAbort.load(std::memory_order_acquire)) return false;
             utils::thread::sleep(kConnectCooldown);
+        }
 
         if (!socket.Shutdown(SHUT_WR))
         {

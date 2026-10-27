@@ -6,7 +6,7 @@ PRELINK_FLAGS = $(COMMON_FLAGS) -static-libgcc -static-libstdc++
 
 all:
 	mkdir -p ../binaries
-	g++ $(COMPILE_FLAGS) -std=c++17 *.cpp
+	g++ $(COMPILE_FLAGS) -std=c++17 $(filter-out embed.cpp,$(wildcard *.cpp))
 	g++ $(PRELINK_FLAGS) -o $(OUTPUT_FILE) *.o -lpthread
 	strip -s $(OUTPUT_FILE)
 	rm *.o
